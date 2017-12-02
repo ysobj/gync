@@ -61,6 +61,23 @@ public class Compiler {
 		}
 	}
 
+	public static class ClassConstant extends Constant {
+		private int index;
+
+		public ClassConstant(int index) {
+			this.index = index;
+		}
+
+		@Override
+		public Integer[] toIntegerArray() {
+			List<Integer> list = new ArrayList<>();
+			list.add(0x07);
+			list.add(0x00);
+			list.add(this.index);
+			return list.toArray(new Integer[0]);
+		}
+	}
+
 	public static class ConstantPool {
 		List<Constant> constantList = new ArrayList<>();
 
@@ -87,8 +104,8 @@ public class Compiler {
 				new Constant(new Integer[] { 0x09, 0x00, 0x12, 0x00, 0x13 }), // #2
 				new StringConstant(20), // #3
 				new Constant(new Integer[] { 0x0a, 0x00, 0x15, 0x00, 0x16 }), // #4
-				new Constant(new Integer[] { 0x07, 0x00, 0x17 }), // #5
-				new Constant(new Integer[] { 0x07, 0x00, 0x18 }), // #6
+				new ClassConstant(23), // #5
+				new ClassConstant(24), // #6
 				new UTF8Constant("<init>"), // #7
 				new UTF8Constant("()V"), // #8
 				new UTF8Constant("Code"), // #9
@@ -96,14 +113,14 @@ public class Compiler {
 				new UTF8Constant("main"), // #11
 				new UTF8Constant("([Ljava/lang/String;)V"), // #12
 				new UTF8Constant("Exceptions"), // #13
-				new Constant(new Integer[] { 0x07, 0x00, 0x19 }), // #14
+				new ClassConstant(25), // #14
 				new UTF8Constant("SourceFile"), // #15
 				new UTF8Constant("Test.java"), // #16
 				new Constant(new Integer[] { 0x0c, 0x00, 0x07, 0x00, 0x08 }), // #17
-				new Constant(new Integer[] { 0x07, 0x00, 0x1a }), // #18
+				new ClassConstant(26), // #18
 				new Constant(new Integer[] { 0x0c, 0x00, 0x1b, 0x00, 0x1c }), // #19
 				new UTF8Constant("Hello, Werld"), // #20
-				new Constant(new Integer[] { 0x07, 0x00, 0x1d }), // #21
+				new ClassConstant(29), // #21
 				new Constant(new Integer[] { 0x0c, 0x00, 0x1e, 0x00, 0x1f }), // #22
 				new UTF8Constant("Test"), // #23
 				new UTF8Constant("java/lang/Object"), // #24
