@@ -33,12 +33,30 @@ public class Compiler {
 			this.str = str;
 		}
 
+		@Override
 		public Integer[] toIntegerArray() {
 			List<Integer> list = new ArrayList<>();
 			list.add(0x01);
 			list.add(0x00);
 			list.add(str.length());
 			str.chars().forEach(c -> list.add(c));
+			return list.toArray(new Integer[0]);
+		}
+	}
+
+	public static class StringConstant extends Constant {
+		private int index;
+
+		public StringConstant(int index) {
+			this.index = index;
+		}
+
+		@Override
+		public Integer[] toIntegerArray() {
+			List<Integer> list = new ArrayList<>();
+			list.add(0x08);
+			list.add(0x00);
+			list.add(this.index);
 			return list.toArray(new Integer[0]);
 		}
 	}
@@ -67,7 +85,7 @@ public class Compiler {
 		Constant[] constants = { //
 				new Constant(new Integer[] { 0x0a, 0x00, 0x06, 0x00, 0x11 }), // #1
 				new Constant(new Integer[] { 0x09, 0x00, 0x12, 0x00, 0x13 }), // #2
-				new Constant(new Integer[] { 0x08, 0x00, 0x14 }), // #3
+				new StringConstant(20), // #3
 				new Constant(new Integer[] { 0x0a, 0x00, 0x15, 0x00, 0x16 }), // #4
 				new Constant(new Integer[] { 0x07, 0x00, 0x17 }), // #5
 				new Constant(new Integer[] { 0x07, 0x00, 0x18 }), // #6
