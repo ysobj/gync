@@ -10,22 +10,30 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Compiler {
-	public class Constant {
+	public static class Constant {
+		private Integer[] constant;
 
+		public Constant(Integer[] value) {
+			constant = value;
+		}
+
+		public Integer[] toIntegerArray() {
+			return constant;
+		}
 	}
 
 	public static class ConstantPool {
-		List<Integer[]> constants = new ArrayList<>();
+		List<Constant> constantList = new ArrayList<>();
 
-		public void add(Integer[] constant) {
-			constants.add(constant);
+		public void add(Constant constant) {
+			constantList.add(constant);
 		}
 
 		public Integer[] toIntegerArray() {
 			List<Integer> list = new ArrayList<>();
 			list.add(0);
-			list.add(constants.size() + 1);
-			constants.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> list.add(x));
+			list.add(constantList.size() + 1);
+			constantList.stream().flatMap(x -> Arrays.stream(x.toIntegerArray())).forEach(x -> list.add(x));
 			return list.toArray(new Integer[0]);
 		}
 	}
@@ -35,7 +43,7 @@ public class Compiler {
 		Integer[] minorVersion = { 0x00, 0x00 };
 		Integer[] majorVersion = { 0x00, 0x34 };
 		// Integer[] constantPoolCount = { 0x00, 0x20 };
-		Integer[][] constantPool = { //
+		Integer[][] constantPoolLiteral = { //
 				{ 0x0a, 0x00, 0x06, 0x00, 0x11 }, // #1
 				{ 0x09, 0x00, 0x12, 0x00, 0x13 }, // #2
 				{ 0x08, 0x00, 0x14 }, // #3
@@ -77,7 +85,7 @@ public class Compiler {
 						0x72, 0x69, 0x6e, 0x67, 0x3b, 0x29, 0x56, } // #31
 		};
 		ConstantPool pool = new ConstantPool();
-		Arrays.stream(constantPool).forEach(c -> pool.add(c));
+		Arrays.stream(constantPoolLiteral).forEach(c -> pool.add(new Constant(c)));
 		Integer[] accessflg = { 0x00, 0x21 };
 		Integer[] thisClass = { 0x00, 0x05 };
 		Integer[] superClass = { 0x00, 0x06 };
