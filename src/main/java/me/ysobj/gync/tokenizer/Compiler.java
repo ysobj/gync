@@ -10,7 +10,24 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Compiler {
+
+	// CONSTANT_Class 7
+	// CONSTANT_Fieldref 9
+	// CONSTANT_Methodref 10
+	// CONSTANT_InterfaceMethodref 11
+	// CONSTANT_String 8
+	// CONSTANT_Integer 3
+	// CONSTANT_Float 4
+	// CONSTANT_Long 5
+	// CONSTANT_Double 6
+	// CONSTANT_NameAndType 12
+	// CONSTANT_Utf8 1
+	// CONSTANT_MethodHandle 15
+	// CONSTANT_MethodType 16
+	// CONSTANT_InvokeDynamic 18
+
 	public static class Constant {
+		private Integer index;
 		private Integer[] constant;
 
 		public Constant() {
@@ -23,6 +40,14 @@ public class Compiler {
 
 		public Integer[] toIntegerArray() {
 			return constant;
+		}
+
+		public Integer getIndex() {
+			return index;
+		}
+
+		public void setIndex(Integer index) {
+			this.index = index;
 		}
 	}
 
@@ -78,11 +103,44 @@ public class Compiler {
 		}
 	}
 
+	public static class FieldRef extends Constant {
+		ClassConstant clazz;
+		NameAndType nat;
+
+		public FieldRef(ClassConstant clazz, NameAndType nat) {
+			this.clazz = clazz;
+			this.nat = nat;
+		}
+	}
+
+	public static class MethodRef extends Constant {
+		ClassConstant clazz;
+		NameAndType nat;
+
+		public MethodRef(ClassConstant clazz, NameAndType nat) {
+			this.clazz = clazz;
+			this.nat = nat;
+		}
+	}
+
+	public static class NameAndType extends Constant {
+		UTF8Constant name;
+		UTF8Constant type;
+
+		public NameAndType(UTF8Constant name, UTF8Constant type) {
+			this.name = name;
+			this.type = type;
+		}
+	}
+
 	public static class ConstantPool {
+		Integer index = new Integer(1);
 		List<Constant> constantList = new ArrayList<>();
 
 		public void add(Constant constant) {
+			constant.setIndex(index);
 			constantList.add(constant);
+			index = index++;
 		}
 
 		public Integer[] toIntegerArray() {
@@ -109,28 +167,28 @@ public class Compiler {
 				new UTF8Constant("<init>"), // #7
 				new UTF8Constant("()V"), // #8
 				new UTF8Constant("Code"), // #9
-				new UTF8Constant("LineNumberTable"), // #10
-				new UTF8Constant("main"), // #11
-				new UTF8Constant("([Ljava/lang/String;)V"), // #12
-				new UTF8Constant("Exceptions"), // #13
-				new ClassConstant(25), // #14
-				new UTF8Constant("SourceFile"), // #15
-				new UTF8Constant("Test.java"), // #16
-				new Constant(new Integer[] { 0x0c, 0x00, 0x07, 0x00, 0x08 }), // #17
-				new ClassConstant(26), // #18
-				new Constant(new Integer[] { 0x0c, 0x00, 0x1b, 0x00, 0x1c }), // #19
-				new UTF8Constant("Hello, Werld"), // #20
-				new ClassConstant(29), // #21
-				new Constant(new Integer[] { 0x0c, 0x00, 0x1e, 0x00, 0x1f }), // #22
-				new UTF8Constant("Test"), // #23
-				new UTF8Constant("java/lang/Object"), // #24
-				new UTF8Constant("java/lang/Exception"), // #25
-				new UTF8Constant("java/lang/System"), // #26
-				new UTF8Constant("out"), // #27
-				new UTF8Constant("Ljava/io/PrintStream;"), // #28
-				new UTF8Constant("java/io/PrintStream"), // #29
-				new UTF8Constant("println"), // #30
-				new UTF8Constant("(Ljava/lang/String;)V") // #31
+				new UTF8Constant("LineNumberTable"), // #10(0x0a)
+				new UTF8Constant("main"), // #11(0x0b)
+				new UTF8Constant("([Ljava/lang/String;)V"), // #12(0x0c)
+				new UTF8Constant("Exceptions"), // #13(0x0d)
+				new ClassConstant(25), // #14(0x0e)
+				new UTF8Constant("SourceFile"), // #15(0x0f)
+				new UTF8Constant("Test.java"), // #16(0x10)
+				new Constant(new Integer[] { 0x0c, 0x00, 0x07, 0x00, 0x08 }), // #17(0x11)
+				new ClassConstant(26), // #18(0x12)
+				new Constant(new Integer[] { 0x0c, 0x00, 0x1b, 0x00, 0x1c }), // #19(0x13)
+				new UTF8Constant("Hello, Werld"), // #20(0x14)
+				new ClassConstant(29), // #21(0x15)
+				new Constant(new Integer[] { 0x0c, 0x00, 0x1e, 0x00, 0x1f }), // #22(0x16)
+				new UTF8Constant("Test"), // #23(0x17)
+				new UTF8Constant("java/lang/Object"), // #24(0x18)
+				new UTF8Constant("java/lang/Exception"), // #25(0x19)
+				new UTF8Constant("java/lang/System"), // #26(0x1a)
+				new UTF8Constant("out"), // #27(0x1b)
+				new UTF8Constant("Ljava/io/PrintStream;"), // #28(0x1c)
+				new UTF8Constant("java/io/PrintStream"), // #29(0x1d)
+				new UTF8Constant("println"), // #30(0x1e)
+				new UTF8Constant("(Ljava/lang/String;)V") // #31(0x1f)
 		};
 		ConstantPool pool = new ConstantPool();
 		Arrays.stream(constants).forEach(c -> pool.add(c));
