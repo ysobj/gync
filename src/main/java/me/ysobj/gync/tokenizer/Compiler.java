@@ -70,10 +70,10 @@ public class Compiler {
 	}
 
 	public static class StringConstant extends Constant {
-		private int index;
+		private UTF8Constant utf8;
 
-		public StringConstant(int index) {
-			this.index = index;
+		public StringConstant(UTF8Constant utf8) {
+			this.utf8 = utf8;
 		}
 
 		@Override
@@ -81,7 +81,7 @@ public class Compiler {
 			List<Integer> list = new ArrayList<>();
 			list.add(0x08);
 			list.add(0x00);
-			list.add(this.index);
+			list.add(this.utf8.getIndex());
 			return list.toArray(new Integer[0]);
 		}
 	}
@@ -174,6 +174,8 @@ public class Compiler {
 		UTF8Constant c4 = new UTF8Constant("Ljava/io/PrintStream;");
 		UTF8Constant c5 = new UTF8Constant("println");
 		UTF8Constant c6 = new UTF8Constant("(Ljava/lang/String;)V");
+		UTF8Constant c7 = new UTF8Constant("Hello, Werld");
+		Constant c8 = new StringConstant(c7);
 
 		NameAndType nt1 = new NameAndType(c1, c2);
 		NameAndType nt2 = new NameAndType(c3, c4);
@@ -181,7 +183,7 @@ public class Compiler {
 		Constant[] constants = { //
 				new Constant(new Integer[] { 0x0a, 0x00, 0x06, 0x00, 0x11 }), // #1
 				new Constant(new Integer[] { 0x09, 0x00, 0x12, 0x00, 0x13 }), // #2
-				new StringConstant(20), // #3
+				c8, // #3
 				new Constant(new Integer[] { 0x0a, 0x00, 0x15, 0x00, 0x16 }), // #4
 				new ClassConstant(23), // #5
 				new ClassConstant(24), // #6
@@ -198,7 +200,7 @@ public class Compiler {
 				nt1, // #17(0x11)
 				new ClassConstant(26), // #18(0x12)
 				nt2, // #19(0x13)
-				new UTF8Constant("Hello, Werld"), // #20(0x14)
+				c7, // #20(0x14)
 				new ClassConstant(29), // #21(0x15)
 				nt3, // #22(0x16)
 				new UTF8Constant("Test"), // #23(0x17)
