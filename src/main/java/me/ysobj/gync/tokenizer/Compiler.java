@@ -87,10 +87,10 @@ public class Compiler {
 	}
 
 	public static class ClassConstant extends Constant {
-		private int index;
+		private UTF8Constant utf8;
 
-		public ClassConstant(int index) {
-			this.index = index;
+		public ClassConstant(UTF8Constant utf8) {
+			this.utf8 = utf8;
 		}
 
 		@Override
@@ -98,7 +98,7 @@ public class Compiler {
 			List<Integer> list = new ArrayList<>();
 			list.add(0x07);
 			list.add(0x00);
-			list.add(this.index);
+			list.add(this.utf8.getIndex());
 			return list.toArray(new Integer[0]);
 		}
 	}
@@ -176,6 +176,11 @@ public class Compiler {
 		UTF8Constant c6 = new UTF8Constant("(Ljava/lang/String;)V");
 		UTF8Constant c7 = new UTF8Constant("Hello, Werld");
 		Constant c8 = new StringConstant(c7);
+		UTF8Constant c9 = new UTF8Constant("Test");
+		UTF8Constant c10 = new UTF8Constant("java/lang/Object");
+		UTF8Constant c11 = new UTF8Constant("java/lang/Exception");
+		UTF8Constant c12 = new UTF8Constant("java/lang/System");
+		UTF8Constant c13 = new UTF8Constant("java/io/PrintStream");
 
 		NameAndType nt1 = new NameAndType(c1, c2);
 		NameAndType nt2 = new NameAndType(c3, c4);
@@ -185,8 +190,8 @@ public class Compiler {
 				new Constant(new Integer[] { 0x09, 0x00, 0x12, 0x00, 0x13 }), // #2
 				c8, // #3
 				new Constant(new Integer[] { 0x0a, 0x00, 0x15, 0x00, 0x16 }), // #4
-				new ClassConstant(23), // #5
-				new ClassConstant(24), // #6
+				new ClassConstant(c9), // #5
+				new ClassConstant(c10), // #6
 				c1, // #7
 				c2, // #8
 				new UTF8Constant("Code"), // #9
@@ -194,22 +199,22 @@ public class Compiler {
 				new UTF8Constant("main"), // #11(0x0b)
 				new UTF8Constant("([Ljava/lang/String;)V"), // #12(0x0c)
 				new UTF8Constant("Exceptions"), // #13(0x0d)
-				new ClassConstant(25), // #14(0x0e)
+				new ClassConstant(c11), // #14(0x0e)
 				new UTF8Constant("SourceFile"), // #15(0x0f)
 				new UTF8Constant("Test.java"), // #16(0x10)
 				nt1, // #17(0x11)
-				new ClassConstant(26), // #18(0x12)
+				new ClassConstant(c12), // #18(0x12)
 				nt2, // #19(0x13)
 				c7, // #20(0x14)
-				new ClassConstant(29), // #21(0x15)
+				new ClassConstant(c13), // #21(0x15)
 				nt3, // #22(0x16)
-				new UTF8Constant("Test"), // #23(0x17)
-				new UTF8Constant("java/lang/Object"), // #24(0x18)
-				new UTF8Constant("java/lang/Exception"), // #25(0x19)
-				new UTF8Constant("java/lang/System"), // #26(0x1a)
+				c9, // #23(0x17)
+				c10, // #24(0x18)
+				c11, // #25(0x19)
+				c12, // #26(0x1a)
 				c3, // #27(0x1b)
 				c4, // #28(0x1c)
-				new UTF8Constant("java/io/PrintStream"), // #29(0x1d)
+				c13, // #29(0x1d)
 				c5, // #30(0x1e)
 				c6// #31(0x1f)
 		};
