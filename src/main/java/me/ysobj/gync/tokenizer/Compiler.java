@@ -63,8 +63,15 @@ public class Compiler {
 			List<Integer> list = new ArrayList<>();
 			list.add(0x01);
 			list.add(0x00);
-			list.add(str.length());
-			str.chars().forEach(c -> list.add(c));
+			int length = str.chars().map(c -> {
+				if (c < 0x80) {
+					return 1;
+				} else if (c >= 0x0800) {
+					return 3;
+				}
+				return 2;
+			}).sum();
+			list.add(length);
 			return list.toArray(new Integer[0]);
 		}
 	}
@@ -197,7 +204,7 @@ public class Compiler {
 		UTF8Constant c4 = new UTF8Constant("Ljava/io/PrintStream;");
 		UTF8Constant c5 = new UTF8Constant("println");
 		UTF8Constant c6 = new UTF8Constant("(Ljava/lang/String;)V");
-		UTF8Constant c7 = new UTF8Constant("Hello, Werld");
+		UTF8Constant c7 = new UTF8Constant("こんにちは世界");
 		Constant c8 = new StringConstant(c7);
 		UTF8Constant c9 = new UTF8Constant("Test");
 		UTF8Constant c10 = new UTF8Constant("java/lang/Object");
