@@ -28,17 +28,17 @@ public class Compiler {
 
 	public static class Constant {
 		private Integer index;
-		private Integer[] constant;
+		private Byte[] constant;
 
 		public Constant() {
 
 		}
 
-		public Constant(Integer[] value) {
+		public Constant(Byte[] value) {
 			constant = value;
 		}
 
-		public Integer[] toIntegerArray() {
+		public Byte[] toByteArray() {
 			return constant;
 		}
 
@@ -59,20 +59,23 @@ public class Compiler {
 		}
 
 		@Override
-		public Integer[] toIntegerArray() {
-			List<Integer> list = new ArrayList<>();
-			list.add(0x01);
-			list.add(0x00);
-			int length = str.chars().map(c -> {
-				if (c < 0x80) {
-					return 1;
-				} else if (c >= 0x0800) {
-					return 3;
-				}
-				return 2;
-			}).sum();
-			list.add(length);
-			return list.toArray(new Integer[0]);
+		public Byte[] toByteArray() {
+			List<Byte> list = new ArrayList<>();
+			list.add((byte)0x01);
+			list.add((byte)0x00);
+			list.add((byte)str.length());
+			str.chars().forEach(c -> list.add((byte)c));
+//			list.add((byte)str.);
+//			int length = str.chars().map(c -> {
+//				if (c < 0x80) {
+//					return 1;
+//				} else if (c >= 0x0800) {
+//					return 3;
+//				}
+//				return 2;
+//			}).sum();
+//			list.add((byte)length);
+			return list.toArray(new Byte[0]);
 		}
 	}
 
@@ -84,12 +87,12 @@ public class Compiler {
 		}
 
 		@Override
-		public Integer[] toIntegerArray() {
-			List<Integer> list = new ArrayList<>();
-			list.add(0x08);
-			list.add(0x00);
-			list.add(this.utf8.getIndex());
-			return list.toArray(new Integer[0]);
+		public Byte[] toByteArray() {
+			List<Byte> list = new ArrayList<>();
+			list.add((byte)0x08);
+			list.add((byte)0x00);
+			list.add(this.utf8.getIndex().byteValue());
+			return list.toArray(new Byte[0]);
 		}
 	}
 
@@ -101,12 +104,12 @@ public class Compiler {
 		}
 
 		@Override
-		public Integer[] toIntegerArray() {
-			List<Integer> list = new ArrayList<>();
-			list.add(0x07);
-			list.add(0x00);
-			list.add(this.utf8.getIndex());
-			return list.toArray(new Integer[0]);
+		public Byte[] toByteArray() {
+			List<Byte> list = new ArrayList<>();
+			list.add((byte)0x07);
+			list.add((byte)0x00);
+			list.add(this.utf8.getIndex().byteValue());
+			return list.toArray(new Byte[0]);
 		}
 	}
 
@@ -120,14 +123,14 @@ public class Compiler {
 		}
 
 		@Override
-		public Integer[] toIntegerArray() {
-			List<Integer> list = new ArrayList<>();
-			list.add(0x09);
-			list.add(0x00);
-			list.add(this.clazz.getIndex());
-			list.add(0x00);
-			list.add(this.nat.getIndex());
-			return list.toArray(new Integer[0]);
+		public Byte[] toByteArray() {
+			List<Byte> list = new ArrayList<>();
+			list.add((byte)0x09);
+			list.add((byte)0x00);
+			list.add(this.clazz.getIndex().byteValue());
+			list.add((byte)0x00);
+			list.add(this.nat.getIndex().byteValue());
+			return list.toArray(new Byte[0]);
 		}
 
 	}
@@ -142,14 +145,14 @@ public class Compiler {
 		}
 
 		@Override
-		public Integer[] toIntegerArray() {
-			List<Integer> list = new ArrayList<>();
-			list.add(0x0a);
-			list.add(0x00);
-			list.add(this.clazz.getIndex());
-			list.add(0x00);
-			list.add(this.nat.getIndex());
-			return list.toArray(new Integer[0]);
+		public Byte[] toByteArray() {
+			List<Byte> list = new ArrayList<>();
+			list.add((byte)0x0a);
+			list.add((byte)0x00);
+			list.add(this.clazz.getIndex().byteValue());
+			list.add((byte)0x00);
+			list.add(this.nat.getIndex().byteValue());
+			return list.toArray(new Byte[0]);
 		}
 	}
 
@@ -163,14 +166,14 @@ public class Compiler {
 		}
 
 		@Override
-		public Integer[] toIntegerArray() {
-			List<Integer> list = new ArrayList<>();
-			list.add(0x0c);
-			list.add(0x00);
-			list.add(this.name.getIndex());
-			list.add(0x00);
-			list.add(this.type.getIndex());
-			return list.toArray(new Integer[0]);
+		public Byte[] toByteArray() {
+			List<Byte> list = new ArrayList<>();
+			list.add((byte)0x0c);
+			list.add((byte)0x00);
+			list.add(this.name.getIndex().byteValue());
+			list.add((byte)0x00);
+			list.add(this.type.getIndex().byteValue());
+			return list.toArray(new Byte[0]);
 		}
 	}
 
@@ -184,27 +187,27 @@ public class Compiler {
 			index++;
 		}
 
-		public Integer[] toIntegerArray() {
-			List<Integer> list = new ArrayList<>();
-			list.add(0);
-			list.add(constantList.size() + 1);
-			constantList.stream().flatMap(x -> Arrays.stream(x.toIntegerArray())).forEach(x -> list.add(x));
-			return list.toArray(new Integer[0]);
+		public Byte[] toByteArray() {
+			List<Byte> list = new ArrayList<>();
+			list.add((byte) 0x00);
+			list.add((byte) (constantList.size() + 1));
+			constantList.stream().flatMap(x -> Arrays.stream(x.toByteArray())).forEach(x -> list.add(x));
+			return list.toArray(new Byte[0]);
 		}
 	}
 
 	public static void main(String[] args) throws Exception {
-		Integer[] cafebabe = { 0xca, 0xfe, 0xba, 0xbe };
-		Integer[] minorVersion = { 0x00, 0x00 };
-		Integer[] majorVersion = { 0x00, 0x34 };
-		// Integer[] constantPoolCount = { 0x00, 0x20 };
+		Byte[] cafebabe = { (byte) 0xca, (byte) 0xfe, (byte) 0xba, (byte) 0xbe };
+		Byte[] minorVersion = { 0x00, 0x00 };
+		Byte[] majorVersion = { 0x00, 0x34 };
+		// Byte[] constantPoolCount = { 0x00, 0x20 };
 		UTF8Constant c1 = new UTF8Constant("<init>");
 		UTF8Constant c2 = new UTF8Constant("()V");
 		UTF8Constant c3 = new UTF8Constant("out");
 		UTF8Constant c4 = new UTF8Constant("Ljava/io/PrintStream;");
 		UTF8Constant c5 = new UTF8Constant("println");
 		UTF8Constant c6 = new UTF8Constant("(Ljava/lang/String;)V");
-		UTF8Constant c7 = new UTF8Constant("こんにちは世界");
+		UTF8Constant c7 = new UTF8Constant("Hello, World");
 		Constant c8 = new StringConstant(c7);
 		UTF8Constant c9 = new UTF8Constant("Test");
 		UTF8Constant c10 = new UTF8Constant("java/lang/Object");
@@ -258,15 +261,15 @@ public class Compiler {
 		};
 		ConstantPool pool = new ConstantPool();
 		Arrays.stream(constants).forEach(c -> pool.add(c));
-		Integer[] accessflg = { 0x00, 0x21 };
-		Integer[] thisClass = { 0x00, 0x05 };
-		Integer[] superClass = { 0x00, 0x06 };
-		Integer[] interfaceCount = { 0x00, 0x00 };
-		Integer[] interfaces = {};
-		Integer[] fieldsCount = { 0x00, 0x00 };
-		Integer[] fields = {};
-		Integer[] methodsCount = { 0x00, 0x02 };
-		Integer[][] methodsInfo0 = { { 0x00, 0x01 }, // access_flag
+		Byte[] accessflg = { 0x00, 0x21 };
+		Byte[] thisClass = { 0x00, 0x05 };
+		Byte[] superClass = { 0x00, 0x06 };
+		Byte[] interfaceCount = { 0x00, 0x00 };
+		Byte[] interfaces = {};
+		Byte[] fieldsCount = { 0x00, 0x00 };
+		Byte[] fields = {};
+		Byte[] methodsCount = { 0x00, 0x02 };
+		Byte[][] methodsInfo0 = { { 0x00, 0x01 }, // access_flag
 				{ 0x00, 0x07 }, // name_index
 				{ 0x00, 0x08 }, // descriptor_index
 				{ 0x00, 0x01 }, // attributes_count
@@ -277,8 +280,8 @@ public class Compiler {
 						0x00, 0x00, 0x00, 0x05, // attribute_info[0] code_length
 						// attribute_info[0] code
 						0x2a, // --> aload_0
-						0xb7, 0x00, 0x01, // --> invokespecial #1
-						0xb1, // --> return
+						(byte)0xb7, 0x00, 0x01, // --> invokespecial #1
+						(byte)0xb1, // --> return
 						// attribute_info[0] code
 						0x00, 0x00, // attribute_info[0] exception_table_length
 						0x00, 0x01, // attribute_info[0] attributes_count
@@ -288,7 +291,7 @@ public class Compiler {
 						0x00, 0x00, // start_pc
 						0x00, 0x01 // line_number
 				} };
-		Integer[][] methodsInfo1 = { { 0x00, 0x09 }, // access_flag
+		Byte[][] methodsInfo1 = { { 0x00, 0x09 }, // access_flag
 				{ 0x00, 0x0b }, // name_index
 				{ 0x00, 0x0c }, // descriptor_index
 				{ 0x00, 0x02 }, // attributes_count
@@ -298,10 +301,10 @@ public class Compiler {
 						0x00, 0x01, // attribute_info[0] max_locals
 						0x00, 0x00, 0x00, 0x09, // attribute_info[0] code_length
 						// attribute_info[0] code
-						0xb2, 0x00, 0x02, // --> getstatic #2
+						(byte)0xb2, 0x00, 0x02, // --> getstatic #2
 						0x12, 0x03, // --> ldc #3
-						0xb6, 0x00, 0x04, // --> invokevirtual #4
-						0xb1, // --> return
+						(byte)0xb6, 0x00, 0x04, // --> invokevirtual #4
+						(byte)0xb1, // --> return
 						// attribute_info[0] code
 						0x00, 0x00, // attribute_info[0] exception_table_length
 						0x00, 0x01, // attribute_info[0] attributes_count
@@ -320,8 +323,8 @@ public class Compiler {
 						0x00, 0x01, // number_of_exceptions
 						0x00, 0x0e // exception_index_table
 				} };
-		Integer[] attributeCount = { 0x00, 0x01 };
-		Integer[][] attributeInfo0 = { { 0x00, 0x0f }, // attribute_name_index
+		Byte[] attributeCount = { 0x00, 0x01 };
+		Byte[][] attributeInfo0 = { { 0x00, 0x0f }, // attribute_name_index
 				{ 0x00, 0x00, 0x00, 0x02 }, // attribute_length
 				{ 0x00, 0x10 } };
 		File f = new File("/tmp/Test.class");
@@ -329,7 +332,7 @@ public class Compiler {
 			write(bos, cafebabe);
 			write(bos, minorVersion);
 			write(bos, majorVersion);
-			write(bos, pool.toIntegerArray());
+			write(bos, pool.toByteArray());
 			// write(bos, constantPoolCount);
 			// write(bos, constantPool);
 			write(bos, accessflg);
@@ -347,11 +350,11 @@ public class Compiler {
 		}
 	}
 
-	protected static void write(OutputStream os, Integer[][] x) {
+	protected static void write(OutputStream os, Byte[][] x) {
 		Arrays.stream(x).forEach(a -> write(os, a));
 	}
 
-	protected static void write(OutputStream os, Integer[] x) {
+	protected static void write(OutputStream os, Byte[] x) {
 		Arrays.stream(x).forEach(b -> {
 			try {
 				os.write(b);
