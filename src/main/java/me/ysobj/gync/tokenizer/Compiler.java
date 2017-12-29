@@ -61,20 +61,25 @@ public class Compiler {
 		@Override
 		public Byte[] toByteArray() {
 			List<Byte> list = new ArrayList<>();
-			list.add((byte)0x01);
-			list.add((byte)0x00);
-			list.add((byte)str.length());
-			str.chars().forEach(c -> list.add((byte)c));
-//			list.add((byte)str.);
-//			int length = str.chars().map(c -> {
-//				if (c < 0x80) {
-//					return 1;
-//				} else if (c >= 0x0800) {
-//					return 3;
-//				}
-//				return 2;
-//			}).sum();
-//			list.add((byte)length);
+			list.add((byte) 0x01);
+			List<Byte> tmp = new ArrayList<>();
+			str.chars().forEach(c -> {
+				if (c != 0x00 && c < 0x80) {
+					tmp.add((byte) c);
+					return;
+				} else if (c >= 0x0800) {
+					tmp.add((byte) (0xe0 | (c >> 12)));
+					tmp.add((byte) ((0x3f & (c >> 6)) | 0x80));
+					tmp.add((byte) ((((byte) c) & 0x3f) | 0x80));
+					return;
+				}
+				tmp.add((byte) (0xc0 | (c >> 6)));
+				tmp.add((byte) (c & 0x3f));
+				return;
+			});
+			list.add((byte) (tmp.size() >> 8));
+			list.add((byte) tmp.size());
+			list.addAll(tmp);
 			return list.toArray(new Byte[0]);
 		}
 	}
@@ -89,8 +94,8 @@ public class Compiler {
 		@Override
 		public Byte[] toByteArray() {
 			List<Byte> list = new ArrayList<>();
-			list.add((byte)0x08);
-			list.add((byte)0x00);
+			list.add((byte) 0x08);
+			list.add((byte) 0x00);
 			list.add(this.utf8.getIndex().byteValue());
 			return list.toArray(new Byte[0]);
 		}
@@ -106,8 +111,8 @@ public class Compiler {
 		@Override
 		public Byte[] toByteArray() {
 			List<Byte> list = new ArrayList<>();
-			list.add((byte)0x07);
-			list.add((byte)0x00);
+			list.add((byte) 0x07);
+			list.add((byte) (this.utf8.getIndex() >> 8));
 			list.add(this.utf8.getIndex().byteValue());
 			return list.toArray(new Byte[0]);
 		}
@@ -125,10 +130,10 @@ public class Compiler {
 		@Override
 		public Byte[] toByteArray() {
 			List<Byte> list = new ArrayList<>();
-			list.add((byte)0x09);
-			list.add((byte)0x00);
+			list.add((byte) 0x09);
+			list.add((byte) (this.clazz.getIndex() >> 8));
 			list.add(this.clazz.getIndex().byteValue());
-			list.add((byte)0x00);
+			list.add((byte) (this.nat.getIndex() >> 8));
 			list.add(this.nat.getIndex().byteValue());
 			return list.toArray(new Byte[0]);
 		}
@@ -147,10 +152,10 @@ public class Compiler {
 		@Override
 		public Byte[] toByteArray() {
 			List<Byte> list = new ArrayList<>();
-			list.add((byte)0x0a);
-			list.add((byte)0x00);
+			list.add((byte) 0x0a);
+			list.add((byte) (this.clazz.getIndex() >> 8));
 			list.add(this.clazz.getIndex().byteValue());
-			list.add((byte)0x00);
+			list.add((byte) (this.nat.getIndex() >> 8));
 			list.add(this.nat.getIndex().byteValue());
 			return list.toArray(new Byte[0]);
 		}
@@ -168,10 +173,10 @@ public class Compiler {
 		@Override
 		public Byte[] toByteArray() {
 			List<Byte> list = new ArrayList<>();
-			list.add((byte)0x0c);
-			list.add((byte)0x00);
+			list.add((byte) 0x0c);
+			list.add((byte) (this.name.getIndex() >> 8));
 			list.add(this.name.getIndex().byteValue());
-			list.add((byte)0x00);
+			list.add((byte) (this.type.getIndex() >> 8));
 			list.add(this.type.getIndex().byteValue());
 			return list.toArray(new Byte[0]);
 		}
@@ -189,7 +194,7 @@ public class Compiler {
 
 		public Byte[] toByteArray() {
 			List<Byte> list = new ArrayList<>();
-			list.add((byte) 0x00);
+			list.add((byte) ((constantList.size() + 1) >> 8));
 			list.add((byte) (constantList.size() + 1));
 			constantList.stream().flatMap(x -> Arrays.stream(x.toByteArray())).forEach(x -> list.add(x));
 			return list.toArray(new Byte[0]);
@@ -207,7 +212,7 @@ public class Compiler {
 		UTF8Constant c4 = new UTF8Constant("Ljava/io/PrintStream;");
 		UTF8Constant c5 = new UTF8Constant("println");
 		UTF8Constant c6 = new UTF8Constant("(Ljava/lang/String;)V");
-		UTF8Constant c7 = new UTF8Constant("Hello, World");
+		UTF8Constant c7 = new UTF8Constant("こんにちは、世界!");
 		Constant c8 = new StringConstant(c7);
 		UTF8Constant c9 = new UTF8Constant("Test");
 		UTF8Constant c10 = new UTF8Constant("java/lang/Object");
@@ -280,8 +285,8 @@ public class Compiler {
 						0x00, 0x00, 0x00, 0x05, // attribute_info[0] code_length
 						// attribute_info[0] code
 						0x2a, // --> aload_0
-						(byte)0xb7, 0x00, 0x01, // --> invokespecial #1
-						(byte)0xb1, // --> return
+						(byte) 0xb7, 0x00, 0x01, // --> invokespecial #1
+						(byte) 0xb1, // --> return
 						// attribute_info[0] code
 						0x00, 0x00, // attribute_info[0] exception_table_length
 						0x00, 0x01, // attribute_info[0] attributes_count
@@ -301,10 +306,10 @@ public class Compiler {
 						0x00, 0x01, // attribute_info[0] max_locals
 						0x00, 0x00, 0x00, 0x09, // attribute_info[0] code_length
 						// attribute_info[0] code
-						(byte)0xb2, 0x00, 0x02, // --> getstatic #2
+						(byte) 0xb2, 0x00, 0x02, // --> getstatic #2
 						0x12, 0x03, // --> ldc #3
-						(byte)0xb6, 0x00, 0x04, // --> invokevirtual #4
-						(byte)0xb1, // --> return
+						(byte) 0xb6, 0x00, 0x04, // --> invokevirtual #4
+						(byte) 0xb1, // --> return
 						// attribute_info[0] code
 						0x00, 0x00, // attribute_info[0] exception_table_length
 						0x00, 0x01, // attribute_info[0] attributes_count
@@ -333,8 +338,6 @@ public class Compiler {
 			write(bos, minorVersion);
 			write(bos, majorVersion);
 			write(bos, pool.toByteArray());
-			// write(bos, constantPoolCount);
-			// write(bos, constantPool);
 			write(bos, accessflg);
 			write(bos, thisClass);
 			write(bos, superClass);
