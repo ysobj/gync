@@ -201,6 +201,19 @@ public class Compiler {
 		}
 	}
 
+	public static class ConstantIndex {
+		Constant constant;
+
+		public ConstantIndex(Constant constant) {
+			this.constant = constant;
+		}
+
+		public Byte[] toByteArray() {
+			return new Byte[] { (byte) (this.constant.getIndex().intValue() >> 8),
+					(byte) (this.constant.getIndex().intValue()) };
+		}
+	}
+
 	public static void main(String[] args) throws Exception {
 		Byte[] cafebabe = { (byte) 0xca, (byte) 0xfe, (byte) 0xba, (byte) 0xbe };
 		Byte[] minorVersion = { 0x00, 0x00 };
@@ -222,6 +235,7 @@ public class Compiler {
 		ClassConstant c14 = new ClassConstant(c12);
 		ClassConstant c15 = new ClassConstant(c10);
 		ClassConstant c16 = new ClassConstant(c13);
+		Constant c17 = new ClassConstant(c9);
 
 		NameAndType nt1 = new NameAndType(c1, c2);
 		NameAndType nt2 = new NameAndType(c3, c4);
@@ -236,7 +250,7 @@ public class Compiler {
 				f1, // #2
 				c8, // #3
 				m2, // #4
-				new ClassConstant(c9), // #5
+				c17, // #5
 				c15, // #6
 				c1, // #7
 				c2, // #8
@@ -267,8 +281,9 @@ public class Compiler {
 		ConstantPool pool = new ConstantPool();
 		Arrays.stream(constants).forEach(c -> pool.add(c));
 		Byte[] accessflg = { 0x00, 0x21 };
-		Byte[] thisClass = { 0x00, 0x05 };
-		Byte[] superClass = { 0x00, 0x06 };
+		// Byte[] thisClass = { 0x00, 0x05 };
+		ConstantIndex thisClass = new ConstantIndex(c17);
+		ConstantIndex superClass = new ConstantIndex(c15);
 		Byte[] interfaceCount = { 0x00, 0x00 };
 		Byte[] interfaces = {};
 		Byte[] fieldsCount = { 0x00, 0x00 };
@@ -339,8 +354,8 @@ public class Compiler {
 			write(bos, majorVersion);
 			write(bos, pool.toByteArray());
 			write(bos, accessflg);
-			write(bos, thisClass);
-			write(bos, superClass);
+			write(bos, thisClass.toByteArray());
+			write(bos, superClass.toByteArray());
 			write(bos, interfaceCount);
 			write(bos, interfaces);
 			write(bos, fieldsCount);
