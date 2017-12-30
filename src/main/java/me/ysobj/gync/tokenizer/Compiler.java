@@ -214,6 +214,62 @@ public class Compiler {
 		}
 	}
 
+	public static class AttributeInfo {
+		UTF8Constant utf8;
+		Byte[] info;
+
+		public AttributeInfo(UTF8Constant utf8, Byte[] info) {
+			this.utf8 = utf8;
+			this.info = info;
+		}
+
+		public Byte[] toByteArray() {
+			Byte[] tmp = new Byte[6 + this.info.length];
+			tmp[0] = (byte) (this.utf8.getIndex().intValue() >> 8);
+			tmp[1] = (byte) (this.utf8.getIndex().intValue());
+			tmp[2] = (byte) (this.info.length >> 24);
+			tmp[3] = (byte) (this.info.length >> 16);
+			tmp[4] = (byte) (this.info.length >> 8);
+			tmp[5] = (byte) (this.info.length);
+			System.arraycopy(this.info, 0, tmp, 6, this.info.length);
+			return tmp;
+		}
+	}
+
+	public static class MethodInfo {
+		Byte[] accessFlag;
+		UTF8Constant nameIndex;
+		UTF8Constant descriptorIndex;
+		List<AttributeInfo> attributeList = new ArrayList<>();
+
+		public MethodInfo(Byte[] accessFlag, UTF8Constant nameIndex, UTF8Constant descriptorIndex) {
+			this.accessFlag = accessFlag;
+			this.nameIndex = nameIndex;
+			this.descriptorIndex = descriptorIndex;
+		}
+
+		public Byte[] toByteArray() {
+			List<Byte> list = new ArrayList<>();
+			list.add(this.accessFlag[0]);
+			list.add(this.accessFlag[1]);
+			list.add((byte) (this.nameIndex.getIndex().intValue() >> 8));
+			list.add((byte) this.nameIndex.getIndex().intValue());
+			list.add((byte) (this.descriptorIndex.getIndex().intValue() >> 8));
+			list.add((byte) this.descriptorIndex.getIndex().intValue());
+			int ac = attributeList.size();
+			list.add((byte) (ac >> 8));
+			list.add((byte) ac);
+			for (AttributeInfo attributeInfo : attributeList) {
+				Arrays.stream(attributeInfo.toByteArray()).forEach(b -> list.add(b));
+			}
+			return list.toArray(new Byte[0]);
+		}
+
+		public void addAttributeInfo(AttributeInfo attributeInfo) {
+			this.attributeList.add(attributeInfo);
+		}
+	}
+
 	public static void main(String[] args) throws Exception {
 		Byte[] cafebabe = { (byte) 0xca, (byte) 0xfe, (byte) 0xba, (byte) 0xbe };
 		Byte[] minorVersion = { 0x00, 0x00 };
@@ -236,6 +292,7 @@ public class Compiler {
 		ClassConstant c15 = new ClassConstant(c10);
 		ClassConstant c16 = new ClassConstant(c13);
 		Constant c17 = new ClassConstant(c9);
+		UTF8Constant c18 = new UTF8Constant("Code");
 
 		NameAndType nt1 = new NameAndType(c1, c2);
 		NameAndType nt2 = new NameAndType(c3, c4);
@@ -254,7 +311,7 @@ public class Compiler {
 				c15, // #6
 				c1, // #7
 				c2, // #8
-				new UTF8Constant("Code"), // #9
+				c18, // #9
 				new UTF8Constant("LineNumberTable"), // #10(0x0a)
 				new UTF8Constant("main"), // #11(0x0b)
 				new UTF8Constant("([Ljava/lang/String;)V"), // #12(0x0c)
@@ -289,28 +346,25 @@ public class Compiler {
 		Byte[] fieldsCount = { 0x00, 0x00 };
 		Byte[] fields = {};
 		Byte[] methodsCount = { 0x00, 0x02 };
-		Byte[][] methodsInfo0 = { { 0x00, 0x01 }, // access_flag
-				{ 0x00, 0x07 }, // name_index
-				{ 0x00, 0x08 }, // descriptor_index
-				{ 0x00, 0x01 }, // attributes_count
-				{ 0x00, 0x09 }, // attribute_info[0] attribute_name_index
-				{ 0x00, 0x00, 0x00, 0x1d }, // attribute_info[0] attribute_length
-				{ 0x00, 0x01, // attribute_info[0] max_stack
-						0x00, 0x01, // attribute_info[0] max_locals
-						0x00, 0x00, 0x00, 0x05, // attribute_info[0] code_length
-						// attribute_info[0] code
-						0x2a, // --> aload_0
-						(byte) 0xb7, 0x00, 0x01, // --> invokespecial #1
-						(byte) 0xb1, // --> return
-						// attribute_info[0] code
-						0x00, 0x00, // attribute_info[0] exception_table_length
-						0x00, 0x01, // attribute_info[0] attributes_count
-						0x00, 0x0a, // attribute_info[0] attribute_info[0] attribute_name_index = "LineNumberTable"
-						0x00, 0x00, 0x00, 0x06, // attribute_info[0] attribute_info[0] attribute_length
-						0x00, 0x01, // line_number_table_length
-						0x00, 0x00, // start_pc
-						0x00, 0x01 // line_number
-				} };
+		AttributeInfo a1 = new AttributeInfo(c18, new Byte[] { 0x00, 0x01, // attribute_info[0] max_stack
+				0x00, 0x01, // attribute_info[0] max_locals
+				0x00, 0x00, 0x00, 0x05, // attribute_info[0] code_length
+				// attribute_info[0] code
+				0x2a, // --> aload_0
+				(byte) 0xb7, 0x00, 0x01, // --> invokespecial #1
+				(byte) 0xb1, // --> return
+				// attribute_info[0] code
+				0x00, 0x00, // attribute_info[0] exception_table_length
+				0x00, 0x01, // attribute_info[0] attributes_count
+				0x00, 0x0a, // attribute_info[0] attribute_info[0] attribute_name_index = "LineNumberTable"
+				0x00, 0x00, 0x00, 0x06, // attribute_info[0] attribute_info[0] attribute_length
+				0x00, 0x01, // line_number_table_length
+				0x00, 0x00, // start_pc
+				0x00, 0x01 // line_number
+		});
+		MethodInfo methodInfo0 = new MethodInfo(new Byte[] { 0x00, 0x01 }, // access_flag
+				c1, c2);
+		methodInfo0.addAttributeInfo(a1);
 		Byte[][] methodsInfo1 = { { 0x00, 0x09 }, // access_flag
 				{ 0x00, 0x0b }, // name_index
 				{ 0x00, 0x0c }, // descriptor_index
@@ -361,7 +415,8 @@ public class Compiler {
 			write(bos, fieldsCount);
 			write(bos, fields);
 			write(bos, methodsCount);
-			write(bos, methodsInfo0);
+			// write(bos, methodsInfo0);
+			write(bos, methodInfo0.toByteArray());
 			write(bos, methodsInfo1);
 			write(bos, attributeCount);
 			write(bos, attributeInfo0);
