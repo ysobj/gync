@@ -293,6 +293,9 @@ public class Compiler {
 		ClassConstant c16 = new ClassConstant(c13);
 		Constant c17 = new ClassConstant(c9);
 		UTF8Constant c18 = new UTF8Constant("Code");
+		UTF8Constant c19 = new UTF8Constant("Exceptions");
+		UTF8Constant c20 = new UTF8Constant("main");
+		UTF8Constant c21 = new UTF8Constant("([Ljava/lang/String;)V");
 
 		NameAndType nt1 = new NameAndType(c1, c2);
 		NameAndType nt2 = new NameAndType(c3, c4);
@@ -313,9 +316,9 @@ public class Compiler {
 				c2, // #8
 				c18, // #9
 				new UTF8Constant("LineNumberTable"), // #10(0x0a)
-				new UTF8Constant("main"), // #11(0x0b)
-				new UTF8Constant("([Ljava/lang/String;)V"), // #12(0x0c)
-				new UTF8Constant("Exceptions"), // #13(0x0d)
+				c20, // #11(0x0b)
+				c21, // #12(0x0c)
+				c19, // #13(0x0d)
 				new ClassConstant(c11), // #14(0x0e)
 				new UTF8Constant("SourceFile"), // #15(0x0f)
 				new UTF8Constant("Test.java"), // #16(0x10)
@@ -346,7 +349,8 @@ public class Compiler {
 		Byte[] fieldsCount = { 0x00, 0x00 };
 		Byte[] fields = {};
 		Byte[] methodsCount = { 0x00, 0x02 };
-		AttributeInfo a1 = new AttributeInfo(c18, new Byte[] { 0x00, 0x01, // attribute_info[0] max_stack
+		AttributeInfo a1 = new AttributeInfo(c18, // "Code"
+				new Byte[] { 0x00, 0x01, // attribute_info[0] max_stack
 				0x00, 0x01, // attribute_info[0] max_locals
 				0x00, 0x00, 0x00, 0x05, // attribute_info[0] code_length
 				// attribute_info[0] code
@@ -365,13 +369,9 @@ public class Compiler {
 		MethodInfo methodInfo0 = new MethodInfo(new Byte[] { 0x00, 0x01 }, // access_flag
 				c1, c2);
 		methodInfo0.addAttributeInfo(a1);
-		Byte[][] methodsInfo1 = { { 0x00, 0x09 }, // access_flag
-				{ 0x00, 0x0b }, // name_index
-				{ 0x00, 0x0c }, // descriptor_index
-				{ 0x00, 0x02 }, // attributes_count
-				{ 0x00, 0x09 }, // attribute_info[0] attribute_name_index = "Code"
-				{ 0x00, 0x00, 0x00, 0x25 }, // attribute_info[0] attribute_length
-				{ 0x00, 0x02, // attribute_info[0] max_stack
+
+		AttributeInfo a2 = new AttributeInfo(c18, // "Code"
+				new Byte[] { 0x00, 0x02, // attribute_info[0] max_stack
 						0x00, 0x01, // attribute_info[0] max_locals
 						0x00, 0x00, 0x00, 0x09, // attribute_info[0] code_length
 						// attribute_info[0] code
@@ -389,14 +389,16 @@ public class Compiler {
 						0x00, 0x03, // line_number
 						0x00, 0x08, // start_pc
 						0x00, 0x04 // line_number
-
-				}, //
-				{ 0x00, 0x0d }, // attribute_info[1] attribute_name_index = "Exceptions"
-				{ 0x00, 0x00, 0x00, 0x04 }, // attribute_info[1] attribute_length
-				{ //
+				});
+		AttributeInfo a3 = new AttributeInfo(c19, // "Exceptions"
+				new Byte[] { //
 						0x00, 0x01, // number_of_exceptions
 						0x00, 0x0e // exception_index_table
-				} };
+				});
+		MethodInfo methodInfo1 = new MethodInfo(new Byte[] { 0x00, 0x09 }, c20, c21);
+		methodInfo1.addAttributeInfo(a2);
+		methodInfo1.addAttributeInfo(a3);
+
 		Byte[] attributeCount = { 0x00, 0x01 };
 		Byte[][] attributeInfo0 = { { 0x00, 0x0f }, // attribute_name_index
 				{ 0x00, 0x00, 0x00, 0x02 }, // attribute_length
@@ -415,9 +417,8 @@ public class Compiler {
 			write(bos, fieldsCount);
 			write(bos, fields);
 			write(bos, methodsCount);
-			// write(bos, methodsInfo0);
 			write(bos, methodInfo0.toByteArray());
-			write(bos, methodsInfo1);
+			write(bos, methodInfo1.toByteArray());
 			write(bos, attributeCount);
 			write(bos, attributeInfo0);
 		}
