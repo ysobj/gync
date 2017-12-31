@@ -236,6 +236,38 @@ public class Compiler {
 		}
 	}
 
+	public static class ExceptionsAttribute extends AttributeInfo {
+		List<ClassConstant> exceptions = new ArrayList<>();
+
+		public ExceptionsAttribute(UTF8Constant utf8) {
+			super(utf8, null);
+		}
+
+		public void addException(ClassConstant clazz) {
+			this.exceptions.add(clazz);
+		}
+
+		public Byte[] toByteArray() {
+			int length = 2 + 2 * (this.exceptions.size());
+			Byte[] tmp = new Byte[6 + length];
+			tmp[0] = (byte) (this.utf8.getIndex().intValue() >> 8);
+			tmp[1] = (byte) (this.utf8.getIndex().intValue());
+			tmp[2] = (byte) (length >> 24);
+			tmp[3] = (byte) (length >> 16);
+			tmp[4] = (byte) (length >> 8);
+			tmp[5] = (byte) (length);
+			tmp[6] = (byte) (this.exceptions.size() >> 8);
+			tmp[7] = (byte) (this.exceptions.size());
+			int index = 8;
+			for (ClassConstant classConstant : exceptions) {
+				tmp[index++] = (byte) (classConstant.getIndex().intValue() >> 8);
+				tmp[index++] = (byte) (classConstant.getIndex().intValue());
+			}
+			return tmp;
+		}
+
+	}
+
 	public static class MethodInfo {
 		Byte[] accessFlag;
 		UTF8Constant nameIndex;
@@ -296,6 +328,7 @@ public class Compiler {
 		UTF8Constant c19 = new UTF8Constant("Exceptions");
 		UTF8Constant c20 = new UTF8Constant("main");
 		UTF8Constant c21 = new UTF8Constant("([Ljava/lang/String;)V");
+		ClassConstant c22 = new ClassConstant(c11);
 
 		NameAndType nt1 = new NameAndType(c1, c2);
 		NameAndType nt2 = new NameAndType(c3, c4);
@@ -319,7 +352,7 @@ public class Compiler {
 				c20, // #11(0x0b)
 				c21, // #12(0x0c)
 				c19, // #13(0x0d)
-				new ClassConstant(c11), // #14(0x0e)
+				c22, // #14(0x0e)
 				new UTF8Constant("SourceFile"), // #15(0x0f)
 				new UTF8Constant("Test.java"), // #16(0x10)
 				nt1, // #17(0x11)
@@ -341,7 +374,6 @@ public class Compiler {
 		ConstantPool pool = new ConstantPool();
 		Arrays.stream(constants).forEach(c -> pool.add(c));
 		Byte[] accessflg = { 0x00, 0x21 };
-		// Byte[] thisClass = { 0x00, 0x05 };
 		ConstantIndex thisClass = new ConstantIndex(c17);
 		ConstantIndex superClass = new ConstantIndex(c15);
 		Byte[] interfaceCount = { 0x00, 0x00 };
@@ -351,21 +383,21 @@ public class Compiler {
 		Byte[] methodsCount = { 0x00, 0x02 };
 		AttributeInfo a1 = new AttributeInfo(c18, // "Code"
 				new Byte[] { 0x00, 0x01, // attribute_info[0] max_stack
-				0x00, 0x01, // attribute_info[0] max_locals
-				0x00, 0x00, 0x00, 0x05, // attribute_info[0] code_length
-				// attribute_info[0] code
-				0x2a, // --> aload_0
-				(byte) 0xb7, 0x00, 0x01, // --> invokespecial #1
-				(byte) 0xb1, // --> return
-				// attribute_info[0] code
-				0x00, 0x00, // attribute_info[0] exception_table_length
-				0x00, 0x01, // attribute_info[0] attributes_count
-				0x00, 0x0a, // attribute_info[0] attribute_info[0] attribute_name_index = "LineNumberTable"
-				0x00, 0x00, 0x00, 0x06, // attribute_info[0] attribute_info[0] attribute_length
-				0x00, 0x01, // line_number_table_length
-				0x00, 0x00, // start_pc
-				0x00, 0x01 // line_number
-		});
+						0x00, 0x01, // attribute_info[0] max_locals
+						0x00, 0x00, 0x00, 0x05, // attribute_info[0] code_length
+						// attribute_info[0] code
+						0x2a, // --> aload_0
+						(byte) 0xb7, 0x00, 0x01, // --> invokespecial #1
+						(byte) 0xb1, // --> return
+						// attribute_info[0] code
+						0x00, 0x00, // attribute_info[0] exception_table_length
+						0x00, 0x01, // attribute_info[0] attributes_count
+						0x00, 0x0a, // attribute_info[0] attribute_info[0] attribute_name_index = "LineNumberTable"
+						0x00, 0x00, 0x00, 0x06, // attribute_info[0] attribute_info[0] attribute_length
+						0x00, 0x01, // line_number_table_length
+						0x00, 0x00, // start_pc
+						0x00, 0x01 // line_number
+				});
 		MethodInfo methodInfo0 = new MethodInfo(new Byte[] { 0x00, 0x01 }, // access_flag
 				c1, c2);
 		methodInfo0.addAttributeInfo(a1);
@@ -390,14 +422,12 @@ public class Compiler {
 						0x00, 0x08, // start_pc
 						0x00, 0x04 // line_number
 				});
-		AttributeInfo a3 = new AttributeInfo(c19, // "Exceptions"
-				new Byte[] { //
-						0x00, 0x01, // number_of_exceptions
-						0x00, 0x0e // exception_index_table
-				});
+		ExceptionsAttribute ea = new ExceptionsAttribute(c19 // "Exceptions"
+		);
+		ea.addException(c22);
 		MethodInfo methodInfo1 = new MethodInfo(new Byte[] { 0x00, 0x09 }, c20, c21);
 		methodInfo1.addAttributeInfo(a2);
-		methodInfo1.addAttributeInfo(a3);
+		methodInfo1.addAttributeInfo(ea);
 
 		Byte[] attributeCount = { 0x00, 0x01 };
 		Byte[][] attributeInfo0 = { { 0x00, 0x0f }, // attribute_name_index
