@@ -268,6 +268,28 @@ public class Compiler {
 
 	}
 
+	public static class SourceFileAttribute extends AttributeInfo {
+		UTF8Constant sourceFile;
+
+		public SourceFileAttribute(UTF8Constant utf8, UTF8Constant sourceFile) {
+			super(utf8, null);
+			this.sourceFile = sourceFile;
+		}
+
+		public Byte[] toByteArray() {
+			Byte[] tmp = new Byte[8];
+			tmp[0] = (byte) (this.utf8.getIndex().intValue() >> 8);
+			tmp[1] = (byte) (this.utf8.getIndex().intValue());
+			tmp[2] = 0;
+			tmp[3] = 0;
+			tmp[4] = 0;
+			tmp[5] = 0b00000010;
+			tmp[6] = (byte) (this.sourceFile.getIndex().intValue() >> 8);
+			tmp[7] = (byte) (this.sourceFile.getIndex().intValue());
+			return tmp;
+		}
+	}
+
 	public static class MethodInfo {
 		Byte[] accessFlag;
 		UTF8Constant nameIndex;
@@ -306,7 +328,6 @@ public class Compiler {
 		Byte[] cafebabe = { (byte) 0xca, (byte) 0xfe, (byte) 0xba, (byte) 0xbe };
 		Byte[] minorVersion = { 0x00, 0x00 };
 		Byte[] majorVersion = { 0x00, 0x34 };
-		// Byte[] constantPoolCount = { 0x00, 0x20 };
 		UTF8Constant c1 = new UTF8Constant("<init>");
 		UTF8Constant c2 = new UTF8Constant("()V");
 		UTF8Constant c3 = new UTF8Constant("out");
@@ -329,6 +350,8 @@ public class Compiler {
 		UTF8Constant c20 = new UTF8Constant("main");
 		UTF8Constant c21 = new UTF8Constant("([Ljava/lang/String;)V");
 		ClassConstant c22 = new ClassConstant(c11);
+		UTF8Constant c23 = new UTF8Constant("SourceFile");
+		UTF8Constant c24 = new UTF8Constant("Test.java");
 
 		NameAndType nt1 = new NameAndType(c1, c2);
 		NameAndType nt2 = new NameAndType(c3, c4);
@@ -353,8 +376,8 @@ public class Compiler {
 				c21, // #12(0x0c)
 				c19, // #13(0x0d)
 				c22, // #14(0x0e)
-				new UTF8Constant("SourceFile"), // #15(0x0f)
-				new UTF8Constant("Test.java"), // #16(0x10)
+				c23, // #15(0x0f)
+				c24, // #16(0x10)
 				nt1, // #17(0x11)
 				c14, // #18(0x12)
 				nt2, // #19(0x13)
@@ -430,9 +453,7 @@ public class Compiler {
 		methodInfo1.addAttributeInfo(ea);
 
 		Byte[] attributeCount = { 0x00, 0x01 };
-		Byte[][] attributeInfo0 = { { 0x00, 0x0f }, // attribute_name_index
-				{ 0x00, 0x00, 0x00, 0x02 }, // attribute_length
-				{ 0x00, 0x10 } };
+		SourceFileAttribute sa = new SourceFileAttribute(c23, c24);
 		File f = new File("/tmp/Test.class");
 		try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(f))) {
 			write(bos, cafebabe);
@@ -450,7 +471,7 @@ public class Compiler {
 			write(bos, methodInfo0.toByteArray());
 			write(bos, methodInfo1.toByteArray());
 			write(bos, attributeCount);
-			write(bos, attributeInfo0);
+			write(bos, sa.toByteArray());
 		}
 	}
 
