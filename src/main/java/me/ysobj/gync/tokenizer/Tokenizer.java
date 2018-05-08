@@ -187,7 +187,12 @@ public class Tokenizer {
 						continue;
 					}
 				default:
-					isIdentifier = true;
+					if (isOperator && sb.length() > 0) {
+						this.preRead = r;
+						return createToken(sb.toString(), readLength);
+					} else {
+						isIdentifier = true;
+					}
 				}
 				sb.append((char) r);
 			} catch (IOException e) {
