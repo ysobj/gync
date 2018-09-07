@@ -8,11 +8,11 @@ import java.io.OutputStream;
 import java.util.Arrays;
 
 public class Compiler {
+	private static Byte[] CAFEBABE = { (byte) 0xca, (byte) 0xfe, (byte) 0xba, (byte) 0xbe };
+	private static Byte[] MINORVERSION = { 0x00, 0x00 };
+	private static Byte[] MAJORVERSION = { 0x00, 0x34 }; // Java SE 8 = 52 (0x34 hex)
 
 	public static void main(String[] args) throws Exception {
-		Byte[] cafebabe = { (byte) 0xca, (byte) 0xfe, (byte) 0xba, (byte) 0xbe };
-		Byte[] minorVersion = { 0x00, 0x00 };
-		Byte[] majorVersion = { 0x00, 0x34 };
 		UTF8Constant c1 = new UTF8Constant("<init>");
 		UTF8Constant c2 = new UTF8Constant("()V");
 		UTF8Constant c3 = new UTF8Constant("out");
@@ -89,13 +89,16 @@ public class Compiler {
 		Byte[] fieldsCount = { 0x00, 0x00 };
 		Byte[] fields = {};
 		Byte[] methodsCount = { 0x00, 0x02 };
+		
+		//
+		Byte[] tmp = m1.getIndexAsBytes();
 		AttributeInfo a1 = new AttributeInfo(c18, // "Code"
 				new Byte[] { 0x00, 0x01, // attribute_info[0] max_stack
 						0x00, 0x01, // attribute_info[0] max_locals
 						0x00, 0x00, 0x00, 0x05, // attribute_info[0] code_length
 						// attribute_info[0] code
 						0x2a, // --> aload_0
-						(byte) 0xb7, 0x00, 0x01, // --> invokespecial #1
+						(byte) 0xb7, tmp[0], tmp[1], // --> invokespecial #1
 						(byte) 0xb1, // --> return
 						// attribute_info[0] code
 						0x00, 0x00, // attribute_info[0] exception_table_length
@@ -110,14 +113,18 @@ public class Compiler {
 				c1, c2);
 		methodInfo0.addAttributeInfo(a1);
 
+		//
+		Byte[] tmp2 = f1.getIndexAsBytes();
+		Byte[] tmp3 = c8.getIndexAsBytes();
+		Byte[] tmp4 = m2.getIndexAsBytes();
 		AttributeInfo a2 = new AttributeInfo(c18, // "Code"
 				new Byte[] { 0x00, 0x02, // attribute_info[0] max_stack
 						0x00, 0x01, // attribute_info[0] max_locals
 						0x00, 0x00, 0x00, 0x09, // attribute_info[0] code_length
 						// attribute_info[0] code
-						(byte) 0xb2, 0x00, 0x02, // --> getstatic #2
-						0x12, 0x03, // --> ldc #3
-						(byte) 0xb6, 0x00, 0x04, // --> invokevirtual #4
+						(byte) 0xb2, tmp2[0], tmp2[1], // --> getstatic #2
+						0x12, tmp3[1], // --> ldc #3
+						(byte) 0xb6, tmp4[0], tmp4[1], // --> invokevirtual #4
 						(byte) 0xb1, // --> return
 						// attribute_info[0] code
 						0x00, 0x00, // attribute_info[0] exception_table_length
@@ -141,22 +148,22 @@ public class Compiler {
 		SourceFileAttribute sa = new SourceFileAttribute(c23, c24);
 		File f = new File(args[0]);
 		try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(f))) {
-			write(bos, cafebabe);
-			write(bos, minorVersion);
-			write(bos, majorVersion);
-			write(bos, pool.toByteArray());
+			write(bos, CAFEBABE);
+			write(bos, MINORVERSION);
+			write(bos, MAJORVERSION);
+			write(bos, pool.toByteArray()); // constant pool count + constant pool table
 			write(bos, accessflg);
-			write(bos, thisClass.toByteArray());
-			write(bos, superClass.toByteArray());
-			write(bos, interfaceCount);
-			write(bos, interfaces);
-			write(bos, fieldsCount);
-			write(bos, fields);
-			write(bos, methodsCount);
-			write(bos, methodInfo0.toByteArray());
-			write(bos, methodInfo1.toByteArray());
-			write(bos, attributeCount);
-			write(bos, sa.toByteArray());
+			write(bos, thisClass.toByteArray()); // identifies this class, index into the constant pool to a "Class"-type entry
+			write(bos, superClass.toByteArray()); // identifies super class, index into the constant pool to a "Class"-type entry
+			write(bos, interfaceCount); // no interfaces
+			write(bos, interfaces); // write 0 byte because our class has no interfaces.
+			write(bos, fieldsCount); // no fields.
+			write(bos, fields);// write 0 byte because our class has no fields.
+			write(bos, methodsCount); // our class has two methods.
+			write(bos, methodInfo0.toByteArray()); // method 0
+			write(bos, methodInfo1.toByteArray()); // method 1
+			write(bos, attributeCount); // our class has only one attribute.
+			write(bos, sa.toByteArray()); // write attribute 0
 		}
 	}
 

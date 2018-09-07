@@ -20,6 +20,13 @@ public class Constant {
 		return index;
 	}
 
+	public Byte[] getIndexAsBytes() {
+		Byte[] tmp = new Byte[2];
+		tmp[0] = (byte) (this.getIndex().intValue() >> 8);
+		tmp[1] = (byte) (this.getIndex().intValue());
+		return tmp;
+	}
+
 	public void setIndex(Integer index) {
 		this.index = index;
 	}
