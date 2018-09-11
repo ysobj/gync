@@ -84,65 +84,66 @@ public class Compiler {
 		Byte[] accessflg = { 0x00, 0x21 };
 		ConstantIndex thisClass = new ConstantIndex(c17);
 		ConstantIndex superClass = new ConstantIndex(c15);
-		Byte[] interfaceCount = { 0x00, 0x00 };
-		Byte[] interfaces = {};
-		Byte[] fieldsCount = { 0x00, 0x00 };
-		Byte[] fields = {};
-		Byte[] methodsCount = { 0x00, 0x02 };
-		
+		Interfaces interfaces = new Interfaces();
+		Fields fields = new Fields();
+		Methods methods = new Methods();
+		{
+			Byte[] tmp = m1.getIndexAsBytes();
+			AttributeInfo a1 = new AttributeInfo(c18, // "Code"
+					new Byte[] { 0x00, 0x01, // attribute_info[0] max_stack
+							0x00, 0x01, // attribute_info[0] max_locals
+							0x00, 0x00, 0x00, 0x05, // attribute_info[0] code_length
+							// attribute_info[0] code
+							0x2a, // --> aload_0
+							(byte) 0xb7, tmp[0], tmp[1], // --> invokespecial #1
+							(byte) 0xb1, // --> return
+							// attribute_info[0] code
+							0x00, 0x00, // attribute_info[0] exception_table_length
+							0x00, 0x01, // attribute_info[0] attributes_count
+							0x00, 0x0a, // attribute_info[0] attribute_info[0] attribute_name_index = "LineNumberTable"
+							0x00, 0x00, 0x00, 0x06, // attribute_info[0] attribute_info[0] attribute_length
+							0x00, 0x01, // line_number_table_length
+							0x00, 0x00, // start_pc
+							0x00, 0x01 // line_number
+					});
+			MethodInfo methodInfo0 = new MethodInfo(new Byte[] { 0x00, 0x01 }, // access_flag
+					c1, c2);
+			methodInfo0.addAttributeInfo(a1);
+			methods.addMethod(methodInfo0);
+		}
 		//
-		Byte[] tmp = m1.getIndexAsBytes();
-		AttributeInfo a1 = new AttributeInfo(c18, // "Code"
-				new Byte[] { 0x00, 0x01, // attribute_info[0] max_stack
-						0x00, 0x01, // attribute_info[0] max_locals
-						0x00, 0x00, 0x00, 0x05, // attribute_info[0] code_length
-						// attribute_info[0] code
-						0x2a, // --> aload_0
-						(byte) 0xb7, tmp[0], tmp[1], // --> invokespecial #1
-						(byte) 0xb1, // --> return
-						// attribute_info[0] code
-						0x00, 0x00, // attribute_info[0] exception_table_length
-						0x00, 0x01, // attribute_info[0] attributes_count
-						0x00, 0x0a, // attribute_info[0] attribute_info[0] attribute_name_index = "LineNumberTable"
-						0x00, 0x00, 0x00, 0x06, // attribute_info[0] attribute_info[0] attribute_length
-						0x00, 0x01, // line_number_table_length
-						0x00, 0x00, // start_pc
-						0x00, 0x01 // line_number
-				});
-		MethodInfo methodInfo0 = new MethodInfo(new Byte[] { 0x00, 0x01 }, // access_flag
-				c1, c2);
-		methodInfo0.addAttributeInfo(a1);
-
-		//
-		Byte[] tmp2 = f1.getIndexAsBytes();
-		Byte[] tmp3 = c8.getIndexAsBytes();
-		Byte[] tmp4 = m2.getIndexAsBytes();
-		AttributeInfo a2 = new AttributeInfo(c18, // "Code"
-				new Byte[] { 0x00, 0x02, // attribute_info[0] max_stack
-						0x00, 0x01, // attribute_info[0] max_locals
-						0x00, 0x00, 0x00, 0x09, // attribute_info[0] code_length
-						// attribute_info[0] code
-						(byte) 0xb2, tmp2[0], tmp2[1], // --> getstatic #2
-						0x12, tmp3[1], // --> ldc #3
-						(byte) 0xb6, tmp4[0], tmp4[1], // --> invokevirtual #4
-						(byte) 0xb1, // --> return
-						// attribute_info[0] code
-						0x00, 0x00, // attribute_info[0] exception_table_length
-						0x00, 0x01, // attribute_info[0] attributes_count
-						0x00, 0x0a, // attribute_info[0] attribute_info[0] attribute_name_index = "LineNumberTable"
-						0x00, 0x00, 0x00, 0x0a, // attribute_info[0] attribute_info[0] attribute_length
-						0x00, 0x02, // attribute_info[0] attribute_info[0] line_number_table_length
-						0x00, 0x00, // start_pc
-						0x00, 0x03, // line_number
-						0x00, 0x08, // start_pc
-						0x00, 0x04 // line_number
-				});
-		ExceptionsAttribute ea = new ExceptionsAttribute(c19 // "Exceptions"
-		);
-		ea.addException(c22);
-		MethodInfo methodInfo1 = new MethodInfo(new Byte[] { 0x00, 0x09 }, c20, c21);
-		methodInfo1.addAttributeInfo(a2);
-		methodInfo1.addAttributeInfo(ea);
+		{
+			Byte[] tmp2 = f1.getIndexAsBytes();
+			Byte[] tmp3 = c8.getIndexAsBytes();
+			Byte[] tmp4 = m2.getIndexAsBytes();
+			AttributeInfo a2 = new AttributeInfo(c18, // "Code"
+					new Byte[] { 0x00, 0x02, // attribute_info[0] max_stack
+							0x00, 0x01, // attribute_info[0] max_locals
+							0x00, 0x00, 0x00, 0x09, // attribute_info[0] code_length
+							// attribute_info[0] code
+							(byte) 0xb2, tmp2[0], tmp2[1], // --> getstatic #2
+							0x12, tmp3[1], // --> ldc #3
+							(byte) 0xb6, tmp4[0], tmp4[1], // --> invokevirtual #4
+							(byte) 0xb1, // --> return
+							// attribute_info[0] code
+							0x00, 0x00, // attribute_info[0] exception_table_length
+							0x00, 0x01, // attribute_info[0] attributes_count
+							0x00, 0x0a, // attribute_info[0] attribute_info[0] attribute_name_index = "LineNumberTable"
+							0x00, 0x00, 0x00, 0x0a, // attribute_info[0] attribute_info[0] attribute_length
+							0x00, 0x02, // attribute_info[0] attribute_info[0] line_number_table_length
+							0x00, 0x00, // start_pc
+							0x00, 0x03, // line_number
+							0x00, 0x08, // start_pc
+							0x00, 0x04 // line_number
+					});
+			ExceptionsAttribute ea = new ExceptionsAttribute(c19 // "Exceptions"
+			);
+			ea.addException(c22);
+			MethodInfo methodInfo1 = new MethodInfo(new Byte[] { 0x00, 0x09 }, c20, c21);
+			methodInfo1.addAttributeInfo(a2);
+			methodInfo1.addAttributeInfo(ea);
+			methods.addMethod(methodInfo1);
+		}
 
 		Byte[] attributeCount = { 0x00, 0x01 };
 		SourceFileAttribute sa = new SourceFileAttribute(c23, c24);
@@ -153,15 +154,13 @@ public class Compiler {
 			write(bos, MAJORVERSION);
 			write(bos, pool.toByteArray()); // constant pool count + constant pool table
 			write(bos, accessflg);
-			write(bos, thisClass.toByteArray()); // identifies this class, index into the constant pool to a "Class"-type entry
-			write(bos, superClass.toByteArray()); // identifies super class, index into the constant pool to a "Class"-type entry
-			write(bos, interfaceCount); // no interfaces
-			write(bos, interfaces); // write 0 byte because our class has no interfaces.
-			write(bos, fieldsCount); // no fields.
-			write(bos, fields);// write 0 byte because our class has no fields.
-			write(bos, methodsCount); // our class has two methods.
-			write(bos, methodInfo0.toByteArray()); // method 0
-			write(bos, methodInfo1.toByteArray()); // method 1
+			write(bos, thisClass.toByteArray()); // identifies this class, index into the constant pool to a
+													// "Class"-type entry
+			write(bos, superClass.toByteArray()); // identifies super class, index into the constant pool to a
+													// "Class"-type entry
+			write(bos, interfaces.toByteArray());
+			write(bos, fields.toByteArray());// write 0 byte because our class has no fields.
+			write(bos, methods.toByteArray());
 			write(bos, attributeCount); // our class has only one attribute.
 			write(bos, sa.toByteArray()); // write attribute 0
 		}
