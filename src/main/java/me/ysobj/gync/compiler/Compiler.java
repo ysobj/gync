@@ -46,41 +46,39 @@ public class Compiler {
 
 		MethodRef m1 = new MethodRef(c15, nt1);
 		MethodRef m2 = new MethodRef(c16, nt3);
-		Constant[] constants = { //
-				m1, // #1
-				f1, // #2
-				c8, // #3
-				m2, // #4
-				c17, // #5
-				c15, // #6
-				c1, // #7
-				c2, // #8
-				c18, // #9
-				new UTF8Constant("LineNumberTable"), // #10(0x0a)
-				c20, // #11(0x0b)
-				c21, // #12(0x0c)
-				c19, // #13(0x0d)
-				c22, // #14(0x0e)
-				c23, // #15(0x0f)
-				c24, // #16(0x10)
-				nt1, // #17(0x11)
-				c14, // #18(0x12)
-				nt2, // #19(0x13)
-				c7, // #20(0x14)
-				c16, // #21(0x15)
-				nt3, // #22(0x16)
-				c9, // #23(0x17)
-				c10, // #24(0x18)
-				c11, // #25(0x19)
-				c12, // #26(0x1a)
-				c3, // #27(0x1b)
-				c4, // #28(0x1c)
-				c13, // #29(0x1d)
-				c5, // #30(0x1e)
-				c6// #31(0x1f)
-		};
 		ConstantPool pool = new ConstantPool();
-		Arrays.stream(constants).forEach(c -> pool.add(c));
+		pool.add(m1);
+		pool.add(f1); // #2
+		pool.add(c8); // #3
+		pool.add(m2); // #4
+		pool.add(c17); // #5
+		pool.add(c15); // #6
+		pool.add(c1); // #7
+		pool.add(c2); // #8
+		pool.add(c18); // #9
+		pool.add(new UTF8Constant("LineNumberTable")); // #10(0x0a)
+		pool.add(c20); // #11(0x0b)
+		pool.add(c21); // #12(0x0c)
+		pool.add(c19); // #13(0x0d)
+		pool.add(c22); // #14(0x0e)
+		pool.add(c23); // #15(0x0f)
+		pool.add(c24); // #16(0x10)
+		pool.add(nt1); // #17(0x11)
+		pool.add(c14); // #18(0x12)
+		pool.add(nt2); // #19(0x13)
+		pool.add(c7); // #20(0x14)
+		pool.add(c16); // #21(0x15)
+		pool.add(nt3); // #22(0x16)
+		pool.add(c9); // #23(0x17)
+		pool.add(c10); // #24(0x18)
+		pool.add(c11); // #25(0x19)
+		pool.add(c12); // #26(0x1a)
+		pool.add(c3); // #27(0x1b)
+		pool.add(c4); // #28(0x1c)
+		pool.add(c13); // #29(0x1d)
+		pool.add(c5); // #30(0x1e)
+		pool.add(c6);// #31(0x1f)
+
 		Byte[] accessflg = { 0x00, 0x21 };
 		ConstantIndex thisClass = new ConstantIndex(c17);
 		ConstantIndex superClass = new ConstantIndex(c15);

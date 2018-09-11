@@ -14,6 +14,14 @@ public class ConstantPool {
 		index++;
 	}
 
+	public ClassConstant addClassConstant(String className) {
+		UTF8Constant name = new UTF8Constant(className);
+		this.add(name);
+		ClassConstant clazz = new ClassConstant(name);
+		this.add(clazz);
+		return clazz;
+	}
+
 	public Byte[] toByteArray() {
 		List<Byte> list = new ArrayList<>();
 		list.add((byte) ((constantList.size() + 1) >> 8));
